@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mb-4">
+	<div class="d-flex justify-content-between align-items-start">
+		<div>
+			<h1 class="mb-2">{{ job.title }}</h1>
+			<p class="text-muted mb-3">
+				<i class="bi bi-calendar3"></i> Posted on {{ job.created_at|date:"F d, Y" }}
+				<span class="mx-2">•</span>
+				<i class="bi bi-people-fill"></i> {{ job.candidates.count }} candidate{{ job.candidates.count|pluralize }}
+			</p>
+		</div>
+		<div>
+			<a href="{% url 'candidate_upload' %}?job={{ job.pk }}" class="btn btn-primary">
+				<i class="bi bi-person-plus-fill me-2"></i>Add Candidate
+			</a>
+		</div>
+	</div>
+	
+	<!-- Job Description Card -->
+	<div class="card border-0 shadow-sm mb-4">
+		<div class="card-header bg-white">
+			<h5 class="mb-0"><i class="bi bi-file-text"></i> Job Description</h5>
+		</div>
+		<div class="card-body">
+			<p class="mb-0">{{ job.description|linebreaks }}</p>
+		</div>
+	</div>
+</div>
+
+<h2 class="mb-3">Candidate Pipeline</h2>
+<div class="card border-0 shadow-sm">
+	<div class="table-responsive">
+		<table class="table table-hover mb-0">
+			<thead class="table-light">
+				<tr>
+					<th class="border-0">Candidate</th>
+					<th class="border-0">Contact</th>
+					<th class="border-0">Match Score</th>
+					<th class="border-0">AI Grade</th>
+					<th class="border-0">Status</th>
+					<th class="border-0 text-end">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for candidate in job.candidates.all %}
+				<tr>
+					<td>
+						<div class="d-flex align-items-center">
+							<div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+								<span class="fw-bold text-primary">{{ candidate.name|slice:":2"|upper }}</span>
+							</div>
+							<div>
+								<a href="{% url 'candidate_detail' candidate.pk %}" class="fw-semibold text-decoration-none text-dark">
+									{{ candidate.name }}
+								</a>
+								<br>
+								<small class="text-muted">
+									Applied {{ candidate.created_at|timesince }} ago
+								</small>
+							</div>
+						</div>
+					</td>
+					<td>
+						<small>
+							<i class="bi bi-envelope text-muted"></i> {{ candidate.email|default:"N/A" }}<br>
+							<i class="bi bi-telephone text-muted"></i> {{ candidate.phone|default:"N/A" }}
+						</small>
+					</td>
+					<td>
+						<div class="d-flex align-items-center">
+							<div class="progress" style="width: 80px; height: 10px;">
+								<div class="progress-bar {% if candidate.keyword_score >= 80 %}score-excellent{% elif candidate.keyword_score >= 60 %}score-great{% elif candidate.keyword_score >= 40 %}score-fair{% else %}score-poor{% endif %}" 
+									 style="width: {{ candidate.keyword_score }}%"></div>
+							</div>
+							<span class="ms-2 fw-semibold {% if candidate.keyword_score >= 70 %}text-success{% elif candidate.keyword_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+								{{ candidate.keyword_score|floatformat:0 }}%
+							</span>
+						</div>
+					</td>
+					<td>
+						{% if candidate.ai_grade %}
+						<span class="grade-badge grade-{{ candidate.ai_grade|lower }}">
+							{{ candidate.ai_grade }}
+						</span>
+						{% else %}
+						<span class="badge bg-secondary">N/A</span>
+						{% endif %}
+					</td>
+					<td>
+						<span class="badge {% if candidate.status == 'new' %}bg-primary{% elif candidate.status == 'shortlisted' %}bg-info{% elif candidate.status == 'interview' %}bg-warning{% elif candidate.status == 'hired' %}bg-success{% else %}bg-secondary{% endif %}">
+							<i class="bi bi-{% if candidate.status == 'new' %}inbox{% elif candidate.status == 'shortlisted' %}star{% elif candidate.status == 'interview' %}calendar-check{% elif candidate.status == 'hired' %}check-circle{% else %}x-circle{% endif %}"></i>
+							{{ candidate.get_status_display }}
+						</span>
+					</td>
+					<td class="text-end">
+						<div class="btn-group btn-group-sm" role="group">
+							<a href="{% url 'candidate_detail' candidate.pk %}" class="btn btn-outline-primary" title="View Details">
+								<i class="bi bi-eye"></i> View
+							</a>
+							{% if candidate.resume_file %}
+							<a href="{{ candidate.resume_file.url }}" class="btn btn-outline-success" title="Download Resume" target="_blank">
+								<i class="bi bi-download"></i>
+							</a>
+							{% endif %}
+						</div>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="6" class="text-center py-5">
+						<i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+						<p class="text-muted mt-2 mb-3">No candidates yet for this position.</p>
+						<a href="{% url 'candidate_upload' %}?job={{ job.pk }}" class="btn btn-primary">
+							<i class="bi bi-person-plus-fill me-2"></i>Add First Candidate
+						</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}

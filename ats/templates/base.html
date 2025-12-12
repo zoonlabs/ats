@@ -1,0 +1,374 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>ATS - Intelligent Recruiting</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+		<style>
+			/* Typography & Base Styles */
+			body {
+				font-size: 15px;
+				line-height: 1.6;
+				color: #374151;
+				background-color: #F9FAFB;
+			}
+
+			h1 {
+				font-size: 2rem;
+				font-weight: 700;
+				color: #111827;
+				margin-bottom: 1.5rem;
+			}
+
+			h2 {
+				font-size: 1.5rem;
+				font-weight: 600;
+				color: #1F2937;
+				margin-bottom: 1rem;
+			}
+
+			/* Better Container */
+			.container {
+				background: white;
+				min-height: calc(100vh - 140px);
+				padding: 2rem;
+				border-radius: 8px;
+				box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+			}
+
+			/* Table Improvements */
+			.table {
+				background: white;
+			}
+
+			.table tbody tr {
+				transition: all 0.2s ease;
+			}
+
+			.table tbody tr:hover {
+				background-color: #F8F9FA;
+				transform: translateY(-1px);
+				box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+				cursor: pointer;
+			}
+
+			/* Button Improvements */
+			.btn {
+				font-weight: 500;
+				padding: 0.5rem 1.25rem;
+				border-radius: 6px;
+				transition: all 0.2s ease;
+			}
+
+			.btn:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+			}
+
+			.btn-primary {
+				background: #4F46E5;
+				border-color: #4F46E5;
+			}
+
+			.btn-primary:hover {
+				background: #4338CA;
+				border-color: #4338CA;
+			}
+
+			/* Card Improvements */
+			.card {
+				border: 1px solid #E5E7EB;
+				border-radius: 8px;
+				box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+				transition: all 0.2s ease;
+			}
+
+			.card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+			}
+
+			.card-header {
+				background-color: #F9FAFB;
+				border-bottom: 1px solid #E5E7EB;
+				font-weight: 600;
+			}
+
+			/* Badge Improvements */
+			.badge {
+				padding: 0.4em 0.75em;
+				font-weight: 500;
+				font-size: 0.875rem;
+				border-radius: 6px;
+			}
+
+			/* Form Improvements */
+			.form-control, .form-select {
+				border-radius: 6px;
+				border: 1px solid #D1D5DB;
+				transition: all 0.2s ease;
+			}
+
+			.form-control:focus, .form-select:focus {
+				border-color: #4F46E5;
+				box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+			}
+
+			/* Navbar Improvements */
+			.navbar {
+				box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+			}
+
+			.navbar-brand {
+				font-weight: 700;
+				font-size: 1.25rem;
+			}
+
+			.navbar-nav .nav-link.active {
+				background-color: rgba(255, 255, 255, 0.1);
+				border-radius: 6px;
+			}
+
+			.navbar-nav .nav-link:hover {
+				background-color: rgba(255, 255, 255, 0.05);
+				border-radius: 6px;
+			}
+
+			/* Score Progress Bars */
+			.progress {
+				height: 8px;
+				border-radius: 4px;
+			}
+
+			.score-excellent { background: #10B981; }
+			.score-great { background: #3B82F6; }
+			.score-good { background: #8B5CF6; }
+			.score-fair { background: #F59E0B; }
+			.score-poor { background: #EF4444; }
+
+			/* Grade Badges */
+			.grade-badge {
+				font-size: 1rem;
+				font-weight: 600;
+				padding: 0.35em 0.65em;
+				border-radius: 6px;
+			}
+
+			.grade-a { background: #10B981; color: white; }
+			.grade-b { background: #3B82F6; color: white; }
+			.grade-c { background: #8B5CF6; color: white; }
+			.grade-d { background: #F59E0B; color: white; }
+			.grade-f { background: #EF4444; color: white; }
+
+			/* Loading Overlay */
+			.loading-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(255, 255, 255, 0.95);
+				display: none;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				z-index: 9999;
+			}
+
+			.loading-overlay.show {
+				display: flex;
+			}
+
+			/* Toast Container */
+			.toast-container {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				z-index: 10000;
+			}
+
+			/* Status Quick Change */
+			.status-form select {
+				width: 130px;
+				padding: 0.25rem 0.5rem;
+				font-size: 0.875rem;
+				border-radius: 6px;
+				cursor: pointer;
+				border: 1px solid #D1D5DB;
+			}
+
+		.status-form select:focus {
+			box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+		}
+
+		/* Logout Button Styling */
+		.dropdown-item button.dropdown-item {
+			padding: 0.5rem 1rem;
+			color: #212529;
+			text-decoration: none;
+			background-color: transparent;
+			border: none;
+			width: 100%;
+			text-align: left;
+			cursor: pointer;
+			font-size: 1rem;
+		}
+
+		.dropdown-item button.dropdown-item:hover {
+			background-color: #f8f9fa;
+		}
+
+		.dropdown-item button.dropdown-item:focus {
+			outline: none;
+			background-color: #f8f9fa;
+		}
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+	<div class="container-fluid">
+		<a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
+			<i class="bi bi-briefcase-fill me-2"></i>
+			<span class="fw-bold">ATS</span>
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item">
+					<a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+						<i class="bi bi-speedometer2 me-1"></i> Dashboard
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link {% if 'job' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'job_list' %}">
+						<i class="bi bi-briefcase me-1"></i> Jobs
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link {% if 'candidate' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'candidate_list' %}">
+						<i class="bi bi-people me-1"></i> Candidates
+					</a>
+				</li>
+			</ul>
+			<ul class="navbar-nav align-items-center">
+				{% if user.is_authenticated %}
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+							<span class="text-white fw-bold small">{{ user.username|slice:":2"|upper }}</span>
+						</div>
+						<span class="text-white">{{ user.username }}</span>
+					</a>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+						<li>
+							<a class="dropdown-item" href="#">
+								<i class="bi bi-person me-2"></i>Profile
+							</a>
+						</li>
+						<li>
+							<a class="dropdown-item" href="#">
+								<i class="bi bi-gear me-2"></i>Settings
+							</a>
+						</li>
+						<li><hr class="dropdown-divider"></li>
+						<li>
+							<form method="post" action="{% url 'logout' %}" style="margin: 0;">
+								{% csrf_token %}
+								<button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+									<i class="bi bi-box-arrow-right me-2"></i>Logout
+								</button>
+							</form>
+						</li>
+					</ul>
+				</li>
+				{% else %}
+				<li class="nav-item">
+					<a class="nav-link" href="{% url 'login' %}">
+						<i class="bi bi-box-arrow-in-right me-1"></i> Login
+					</a>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
+	</div>
+</nav>
+<div class="container">
+		{% block content %}{% endblock %}
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+	<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+		<span class="visually-hidden">Loading...</span>
+	</div>
+	<p class="mt-3 text-center">
+		<strong>🤖 AI Analyzing Resume...</strong><br>
+		<small class="text-muted">This takes 2-3 seconds</small>
+	</p>
+	<div class="progress" style="width: 200px; margin-top: 1rem;">
+		<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+	</div>
+</div>
+
+<!-- Toast Notifications -->
+{% if messages %}
+<div class="toast-container">
+	{% for message in messages %}
+	<div class="toast show align-items-center text-white bg-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}info{% endif %} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				<i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+				<strong>{{ message }}</strong>
+			</div>
+			<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+	// Show loading overlay on file upload forms
+	document.addEventListener('DOMContentLoaded', function() {
+		// For resume upload forms
+		const uploadForms = document.querySelectorAll('form[enctype="multipart/form-data"]');
+		uploadForms.forEach(form => {
+			form.addEventListener('submit', function(e) {
+				const fileInput = form.querySelector('input[type="file"]');
+				if (fileInput && fileInput.files.length > 0) {
+					document.getElementById('loadingOverlay').classList.add('show');
+				}
+			});
+		});
+
+		// Auto-hide toasts after 5 seconds
+		setTimeout(() => {
+			const toasts = document.querySelectorAll('.toast');
+			toasts.forEach(toast => {
+				const bsToast = new bootstrap.Toast(toast);
+				bsToast.hide();
+			});
+		}, 5000);
+
+		// Make table rows clickable
+		document.querySelectorAll('.table tbody tr').forEach(row => {
+			row.addEventListener('click', function(e) {
+				// Don't trigger if clicking on a button, link, or form element
+				if (!e.target.closest('a, button, select, input')) {
+					const link = this.querySelector('a');
+					if (link) {
+						window.location.href = link.href;
+					}
+				}
+			});
+		});
+	});
+</script>
+</body>
+</html>

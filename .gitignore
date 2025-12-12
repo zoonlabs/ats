@@ -1,0 +1,66 @@
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+__pycache__/
+*.pyc
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+local_settings.py
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing & Debugging
+debug_upload.py
+test_api_connection.py
+test_ai_scoring.py
+test_scoring_directly.py
+check_jobs.py
+fix_empty_job_descriptions.py
+fix_short_descriptions.py
+rescore_all_candidates.py
+
+# Documentation (keep only essential)
+CANDIDATE_UPLOAD_FIX_SUMMARY.md
+FILE_UPLOAD_FIX.md
+LOGOUT_FIX.md
+NAVBAR_AND_FORMS_IMPROVEMENTS.md
+UI_QUICK_FIXES.md
+UI_UX_REVIEW.md
+UI_UX_SUMMARY.md
+
+# Sample/Test Data
+create_test_data.py
+sample_resume.txt
+
+# Build & Distribution
+*.egg-info/
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+

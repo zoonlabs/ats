@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<div>
+		<h1 class="mb-1">All Candidates</h1>
+		<p class="text-muted mb-0">Review and manage candidate applications</p>
+	</div>
+	<a href="{% url 'candidate_upload' %}" class="btn btn-primary">
+		<i class="bi bi-person-plus-fill me-2"></i>Add Candidate
+	</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+	<div class="card-body">
+		<form method="get" class="row g-3">
+			<div class="col-md-3">
+				<div class="input-group">
+					<span class="input-group-text bg-white">
+						<i class="bi bi-search"></i>
+					</span>
+					<input type="text" name="search" class="form-control" placeholder="Search name or email..." value="{{ request.GET.search }}">
+				</div>
+			</div>
+			<div class="col-md-2">
+				<select name="status" class="form-select">
+					<option value="">All Statuses</option>
+					{% for key, value in status_choices %}
+					<option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ value }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="col-md-3">
+				<select name="order_by" class="form-select">
+					<option value="-created_at" {% if request.GET.order_by == '-created_at' %}selected{% endif %}>Newest First</option>
+					<option value="name" {% if request.GET.order_by == 'name' %}selected{% endif %}>Name (A-Z)</option>
+					<option value="-name" {% if request.GET.order_by == '-name' %}selected{% endif %}>Name (Z-A)</option>
+					<option value="-keyword_score" {% if request.GET.order_by == '-keyword_score' %}selected{% endif %}>Score (High to Low)</option>
+					<option value="keyword_score" {% if request.GET.order_by == 'keyword_score' %}selected{% endif %}>Score (Low to High)</option>
+				</select>
+			</div>
+			<div class="col-md-4 text-end">
+				<button type="submit" class="btn btn-primary">
+					<i class="bi bi-funnel"></i> Apply Filters
+				</button>
+				<a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
+					<i class="bi bi-x-circle"></i> Reset
+				</a>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="card border-0 shadow-sm">
+	<div class="table-responsive">
+		<table class="table table-hover mb-0">
+			<thead class="table-light">
+				<tr>
+					<th class="border-0">Candidate</th>
+					<th class="border-0">Match Scores</th>
+					<th class="border-0">Status</th>
+					<th class="border-0">Job</th>
+					<th class="border-0">Applied</th>
+					<th class="border-0 text-end">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for candidate in candidates %}
+				<tr>
+					<td>
+						<div class="d-flex align-items-center">
+							<div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+								<span class="fw-bold text-primary">{{ candidate.name|slice:":2"|upper }}</span>
+							</div>
+							<div>
+								<a href="{% url 'candidate_detail' candidate.pk %}" class="fw-semibold text-decoration-none text-dark">
+									{{ candidate.name }}
+								</a>
+								<br>
+								<small class="text-muted">
+									<i class="bi bi-envelope"></i> {{ candidate.email|default:"N/A" }}
+								</small>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class="d-flex align-items-center gap-2">
+							<div>
+								<div class="d-flex align-items-center mb-1">
+									<div class="progress" style="width: 60px; height: 8px;">
+										<div class="progress-bar {% if candidate.keyword_score >= 80 %}score-excellent{% elif candidate.keyword_score >= 60 %}score-great{% elif candidate.keyword_score >= 40 %}score-fair{% else %}score-poor{% endif %}" 
+											 style="width: {{ candidate.keyword_score }}%"></div>
+									</div>
+									<small class="text-muted ms-2">{{ candidate.keyword_score|floatformat:0 }}%</small>
+								</div>
+								<small class="text-muted">Keyword Match</small>
+							</div>
+							<div class="vr"></div>
+							<div>
+								{% if candidate.ai_grade %}
+								<span class="grade-badge grade-{{ candidate.ai_grade|lower }}">
+									{{ candidate.ai_grade }}
+								</span>
+								<br><small class="text-muted">AI Grade</small>
+								{% else %}
+								<span class="badge bg-secondary">N/A</span>
+								<br><small class="text-muted">AI Grade</small>
+								{% endif %}
+							</div>
+						</div>
+					</td>
+					<td>
+						<form method="post" action="{% url 'candidate_status_update' candidate.pk %}" class="status-form" style="display: inline;">
+							{% csrf_token %}
+							<select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+								{% for key, value in status_choices %}
+								<option value="{{ key }}" {% if candidate.status == key %}selected{% endif %}>{{ value }}</option>
+								{% endfor %}
+							</select>
+						</form>
+					</td>
+					<td>
+						<a href="{% url 'job_detail' candidate.job.pk %}" class="text-decoration-none">
+							<i class="bi bi-briefcase"></i> {{ candidate.job.title|truncatewords:3 }}
+						</a>
+					</td>
+					<td>
+						<small class="text-muted">
+							<i class="bi bi-calendar3"></i> {{ candidate.created_at|date:"M d" }}
+						</small>
+					</td>
+					<td class="text-end">
+						<div class="btn-group btn-group-sm" role="group">
+							<a href="{% url 'candidate_detail' candidate.pk %}" class="btn btn-outline-primary" title="View Details">
+								<i class="bi bi-eye"></i>
+							</a>
+							{% if candidate.resume_file %}
+							<a href="{{ candidate.resume_file.url }}" class="btn btn-outline-success" title="Download Resume" target="_blank">
+								<i class="bi bi-download"></i>
+							</a>
+							{% endif %}
+						</div>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="6" class="text-center py-5">
+						<i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+						<p class="text-muted mt-2">No candidates found matching your filters.</p>
+						<a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">Clear Filters</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% if is_paginated %}
+<nav aria-label="Candidate pagination" class="mt-4">
+	<ul class="pagination justify-content-center">
+		{% if page_obj.has_previous %}
+		<li class="page-item">
+			<a class="page-link" href="?page=1" aria-label="First">
+				<i class="bi bi-chevron-bar-left"></i> First
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+				<i class="bi bi-chevron-left"></i> Previous
+			</a>
+		</li>
+		{% endif %}
+		
+		<li class="page-item active">
+			<span class="page-link">
+				Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+			</span>
+		</li>
+		
+		{% if page_obj.has_next %}
+		<li class="page-item">
+			<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+				Next <i class="bi bi-chevron-right"></i>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+				Last <i class="bi bi-chevron-bar-right"></i>
+			</a>
+		</li>
+		{% endif %}
+	</ul>
+</nav>
+{% endif %}
+{% endblock %}

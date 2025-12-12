@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <div class="col-md-10 offset-md-1">
+    <div class="mb-4">
+      <h1 class="mb-2">Upload Candidate</h1>
+      <p class="text-muted">Add a new candidate and let AI analyze their resume</p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data" id="candidateForm">
+          {% csrf_token %}
+          
+          <!-- Job Selection -->
+          <div class="mb-4">
+            <label for="{{ form.job.id_for_label }}" class="form-label fw-semibold">
+              <i class="bi bi-briefcase text-primary me-2"></i>Job Position *
+            </label>
+            {{ form.job }}
+            <div class="form-text">Select which position this candidate is applying for</div>
+          </div>
+
+          <div class="row">
+            <!-- Name -->
+            <div class="col-md-6 mb-4">
+              <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                <i class="bi bi-person text-primary me-2"></i>Full Name *
+              </label>
+              <input type="text" name="name" id="{{ form.name.id_for_label }}" class="form-control" 
+                     placeholder="e.g., John Doe" required>
+            </div>
+
+            <!-- Email -->
+            <div class="col-md-6 mb-4">
+              <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                <i class="bi bi-envelope text-primary me-2"></i>Email Address
+              </label>
+              <input type="email" name="email" id="{{ form.email.id_for_label }}" class="form-control" 
+                     placeholder="john@example.com">
+              <div class="form-text">Will be auto-extracted from resume if not provided</div>
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div class="mb-4">
+            <label for="{{ form.phone.id_for_label }}" class="form-label fw-semibold">
+              <i class="bi bi-telephone text-primary me-2"></i>Phone Number
+            </label>
+            <input type="tel" name="phone" id="{{ form.phone.id_for_label }}" class="form-control" 
+                   placeholder="+1-555-123-4567">
+            <div class="form-text">Will be auto-extracted from resume if not provided</div>
+          </div>
+
+          <!-- Resume Upload -->
+          <div class="mb-4">
+            <label for="{{ form.resume_file.id_for_label }}" class="form-label fw-semibold">
+              <i class="bi bi-file-earmark-pdf text-primary me-2"></i>Resume File (PDF) *
+            </label>
+            <div class="border-2 border-dashed rounded p-4 text-center bg-light" id="dropZone">
+              <div id="dropZoneContent">
+                <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="mt-2 mb-2">Drag & drop resume here or click to browse</p>
+                <small class="text-muted">Supported format: PDF (Max 10MB)</small>
+              </div>
+              <input type="file" name="resume_file" id="{{ form.resume_file.id_for_label }}" 
+                     class="form-control" accept=".pdf" required style="position: absolute; opacity: 0; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer;">
+            </div>
+            <div class="form-text mt-2">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>AI will automatically:</strong> Extract skills, experience, education, contact info, and calculate match score
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-upload me-2"></i>Upload & Analyze Resume
+            </button>
+            <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary btn-lg">
+              <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="card border-0 bg-light mt-4">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-2">
+          <i class="bi bi-lightbulb text-warning me-2"></i>What happens after upload:
+        </h6>
+        <div class="row">
+          <div class="col-md-6">
+            <ul class="mb-0 small">
+              <li><strong>Resume Parsing:</strong> AI extracts text from PDF</li>
+              <li><strong>Information Extraction:</strong> Identifies skills, experience, education</li>
+              <li><strong>Keyword Matching:</strong> Compares with job requirements</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul class="mb-0 small">
+              <li><strong>AI Analysis:</strong> Deep semantic evaluation (2-3 seconds)</li>
+              <li><strong>Score Generation:</strong> Both keyword score (0-100%) and AI grade (A-F)</li>
+              <li><strong>Recommendations:</strong> Hiring suggestions with reasoning</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #dropZone {
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+  }
+
+  #dropZone:hover {
+    border-color: #4F46E5;
+    background-color: #F9FAFB !important;
+  }
+
+  .form-control, .form-select {
+    padding: 0.6rem 0.75rem;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const dropZone = document.getElementById('dropZone');
+  const dropZoneContent = document.getElementById('dropZoneContent');
+  const fileInput = document.getElementById('{{ form.resume_file.id_for_label }}');
+
+  // Make the entire dropZone clickable
+  dropZone.addEventListener('click', function(e) {
+    // Don't trigger if clicking the input directly
+    if (e.target !== fileInput) {
+      fileInput.click();
+    }
+  });
+
+  // Drag and drop handlers
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.style.borderColor = '#4F46E5';
+      dropZone.style.backgroundColor = '#EEF2FF';
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.style.borderColor = '#dee2e6';
+      dropZone.style.backgroundColor = '#f8f9fa';
+    }, false);
+  });
+
+  dropZone.addEventListener('drop', function(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    fileInput.files = files;
+    
+    if (files.length > 0) {
+      updateFileLabel(files[0].name);
+    }
+  });
+
+  fileInput.addEventListener('change', function() {
+    if (this.files.length > 0) {
+      updateFileLabel(this.files[0].name);
+    }
+  });
+
+  function updateFileLabel(filename) {
+    // Only update the content div, not the entire dropZone (keeps the input intact!)
+    dropZoneContent.innerHTML = `
+      <i class="bi bi-file-earmark-pdf-fill text-success" style="font-size: 3rem;"></i>
+      <p class="mt-2 mb-0"><strong>Selected:</strong> ${filename}</p>
+      <small class="text-muted">Click to change file</small>
+    `;
+  }
+});
+</script>
+{% endblock %}

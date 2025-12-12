@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h1>{{ candidate.name }}</h1>
+    <p><strong>Email:</strong> {{ candidate.email|default:"N/A" }}</p>
+    <p><strong>Phone:</strong> {{ candidate.phone|default:"N/A" }}</p>
+    <p><strong>Status:</strong> <span class="badge bg-info">{{ candidate.get_status_display }}</span></p>
+    <p><strong>Job:</strong> <a href="{% url 'job_detail' candidate.job.pk %}">{{ candidate.job.title }}</a></p>
+    <p><strong>Experience:</strong> {{ candidate.experience_years }} years</p>
+    {% if candidate.skills %}
+    <p><strong>Skills:</strong> 
+      {% for skill in candidate.skills %}
+        <span class="badge bg-secondary">{{ skill }}</span>
+      {% endfor %}
+    </p>
+    {% endif %}
+    
+    <!-- Dual Scoring System -->
+    <div class="card mt-3 mb-3">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">📊 Match Scores</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>🔍 Keyword Match Score</h6>
+            <div class="progress mb-2" style="height: 30px;">
+              <div class="progress-bar {% if candidate.keyword_score >= 70 %}bg-success{% elif candidate.keyword_score >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                   role="progressbar" 
+                   style="width: {{ candidate.keyword_score }}%;" 
+                   aria-valuenow="{{ candidate.keyword_score }}" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+                <strong>{{ candidate.keyword_score|floatformat:0 }}%</strong>
+              </div>
+            </div>
+            <small class="text-muted">Enhanced keyword matching with fuzzy logic</small>
+          </div>
+          <div class="col-md-6">
+            <h6>🤖 AI Semantic Score</h6>
+            {% if candidate.ai_score %}
+            <div class="progress mb-2" style="height: 30px;">
+              <div class="progress-bar {% if candidate.ai_score >= 70 %}bg-success{% elif candidate.ai_score >= 50 %}bg-info{% else %}bg-warning{% endif %}" 
+                   role="progressbar" 
+                   style="width: {{ candidate.ai_score }}%;" 
+                   aria-valuenow="{{ candidate.ai_score }}" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+                <strong>{{ candidate.ai_score|floatformat:0 }}% ({{ candidate.ai_grade }})</strong>
+              </div>
+            </div>
+            <small class="text-muted">AI-powered contextual analysis</small>
+            {% else %}
+            <div class="alert alert-secondary mb-0">
+              <small>AI analysis not available</small>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        {% if candidate.ai_reasoning %}
+        <div class="mt-3">
+          <h6>💡 AI Analysis</h6>
+          <div class="alert alert-info">
+            {{ candidate.ai_reasoning }}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Update Status</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'candidate_status_update' candidate.pk %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <select name="status" class="form-select">
+              {% for key, value in status_choices %}
+              <option value="{{ key }}" {% if candidate.status == key %}selected{% endif %}>{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Update Status</button>
+        </form>
+      </div>
+    </div>
+    {% if candidate.resume_file %}
+    <div class="card mt-3">
+      <div class="card-body">
+        <a href="{{ candidate.resume_file.url }}" class="btn btn-outline-primary w-100" target="_blank">Download Resume</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<h2 class="mt-4">Resume Text</h2>
+<pre class="bg-light p-3" style="max-height: 400px; overflow-y: auto;">{{ candidate.resume_text|default:"No resume text available" }}</pre>
+
+<h2>Keyword Analysis</h2>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5>Matched Keywords</h5>
+      </div>
+      <div class="card-body">
+        {{ candidate.matched_keywords|default:"None" }}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-warning">
+        <h5>Missing Keywords</h5>
+      </div>
+      <div class="card-body">
+        {{ candidate.missing_keywords|default:"None" }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'job_detail' candidate.job.pk %}" class="btn btn-secondary mt-3">Back to Job</a>
+{% endblock %}

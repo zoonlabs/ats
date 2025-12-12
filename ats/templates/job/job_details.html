@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>{{ job.title }}</h3>
+
+
+<a href="{% url 'upload_resume' job.id %}" class="btn btn-success mb-3">Upload Resume</a>
+
+
+<form method="get" class="mb-3">
+<select name="status" class="form-select d-inline w-auto">
+<option value="">All Status</option>
+<option value="new">New</option>
+<option value="shortlisted">Shortlisted</option>
+<option value="interview">Interview</option>
+<option value="hired">Hired</option>
+<option value="rejected">Rejected</option>
+</select>
+
+
+<select name="sort" class="form-select d-inline w-auto">
+<option value="">Sort</option>
+<option value="score_desc">Score High → Low</option>
+<option value="score_asc">Score Low → High</option>
+<option value="status">Status</option>
+</select>
+
+
+<button class="btn btn-primary">Apply</button>
+</form>
+
+
+<table class="table table-bordered bg-white">
+<tr>
+<th>Name</th><th>Score</th><th>Status</th><th></th>
+</tr>
+{% for app in applications %}
+<tr>
+<td>{{ app.candidate.name }}</td>
+<td>{{ app.candidate.score }}</td>
+<td>{{ app.status }}</td>
+<td><a href="{% url 'application_detail' app.id %}" class="btn btn-sm btn-secondary">Open</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,15 @@
+django>=4.2
+psycopg2-binary
+gunicorn
+django-crispy-forms
+django-filter
+celery[redis]
+redis
+python-dotenv
+pdfminer.six
+requests
+django-storages[boto3]
+boto3
+openai
+whitenoise
+django-environ

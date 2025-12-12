@@ -1,0 +1,10 @@
+services:
+- type: web
+name: django-ats
+env: docker
+dockerfilePath: Dockerfile
+plan: free
+databases:
+- name: ats-db
+engine: postgres
+plan: free

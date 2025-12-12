@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <div class="col-md-10 offset-md-1">
+    <div class="mb-4">
+      <h1 class="mb-2">Create Job Posting</h1>
+      <p class="text-muted">Fill in the details to create a new job opening</p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="post" id="jobForm">
+          {% csrf_token %}
+          
+          <!-- Job Title -->
+          <div class="mb-4">
+            <label for="id_title" class="form-label fw-semibold">
+              <i class="bi bi-briefcase text-primary me-2"></i>Job Title *
+            </label>
+            <input type="text" name="title" id="id_title" class="form-control form-control-lg" 
+                   placeholder="e.g., Senior Python Developer" required>
+            <div class="form-text">Clear, descriptive job title that candidates will search for</div>
+          </div>
+
+          <!-- Job Description -->
+          <div class="mb-4">
+            <label for="id_description" class="form-label fw-semibold">
+              <i class="bi bi-file-text text-primary me-2"></i>Job Description *
+            </label>
+            <textarea name="description" id="id_description" class="form-control" rows="8" 
+                      placeholder="Describe the role, responsibilities, requirements, and what makes this position great..." 
+                      required minlength="50"></textarea>
+            <div class="form-text">
+              <strong>⚠️ IMPORTANT:</strong> A detailed description is required for accurate candidate scoring! 
+              Include: responsibilities, qualifications, experience level, technical requirements, and company culture. 
+              <strong>The AI uses this to evaluate candidate fit.</strong>
+            </div>
+          </div>
+
+          <!-- Required Skills -->
+          <div class="mb-4">
+            <label for="skillsSelect" class="form-label fw-semibold">
+              <i class="bi bi-star text-primary me-2"></i>Required Skills
+            </label>
+            <select id="skillsSelect" name="skills" class="form-control" multiple="multiple" style="width: 100%;">
+              <!-- Common Programming Languages -->
+              <optgroup label="Programming Languages">
+                <option value="Python">Python</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="TypeScript">TypeScript</option>
+                <option value="Java">Java</option>
+                <option value="C++">C++</option>
+                <option value="C#">C#</option>
+                <option value="Ruby">Ruby</option>
+                <option value="PHP">PHP</option>
+                <option value="Go">Go</option>
+                <option value="Rust">Rust</option>
+                <option value="Swift">Swift</option>
+                <option value="Kotlin">Kotlin</option>
+                <option value="Scala">Scala</option>
+              </optgroup>
+              
+              <!-- Web Frameworks -->
+              <optgroup label="Web Frameworks">
+                <option value="Django">Django</option>
+                <option value="Flask">Flask</option>
+                <option value="FastAPI">FastAPI</option>
+                <option value="React">React</option>
+                <option value="Vue.js">Vue.js</option>
+                <option value="Angular">Angular</option>
+                <option value="Node.js">Node.js</option>
+                <option value="Express.js">Express.js</option>
+                <option value="Spring Boot">Spring Boot</option>
+                <option value="Laravel">Laravel</option>
+                <option value="Ruby on Rails">Ruby on Rails</option>
+                <option value="ASP.NET">ASP.NET</option>
+              </optgroup>
+              
+              <!-- Databases -->
+              <optgroup label="Databases">
+                <option value="PostgreSQL">PostgreSQL</option>
+                <option value="MySQL">MySQL</option>
+                <option value="MongoDB">MongoDB</option>
+                <option value="Redis">Redis</option>
+                <option value="Elasticsearch">Elasticsearch</option>
+                <option value="Oracle">Oracle</option>
+                <option value="SQL Server">SQL Server</option>
+                <option value="DynamoDB">DynamoDB</option>
+                <option value="Cassandra">Cassandra</option>
+              </optgroup>
+              
+              <!-- Cloud & DevOps -->
+              <optgroup label="Cloud & DevOps">
+                <option value="AWS">AWS</option>
+                <option value="Azure">Azure</option>
+                <option value="Google Cloud">Google Cloud (GCP)</option>
+                <option value="Docker">Docker</option>
+                <option value="Kubernetes">Kubernetes</option>
+                <option value="Jenkins">Jenkins</option>
+                <option value="GitLab CI/CD">GitLab CI/CD</option>
+                <option value="GitHub Actions">GitHub Actions</option>
+                <option value="Terraform">Terraform</option>
+                <option value="Ansible">Ansible</option>
+              </optgroup>
+              
+              <!-- Data & AI -->
+              <optgroup label="Data & AI">
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Deep Learning">Deep Learning</option>
+                <option value="TensorFlow">TensorFlow</option>
+                <option value="PyTorch">PyTorch</option>
+                <option value="Pandas">Pandas</option>
+                <option value="NumPy">NumPy</option>
+                <option value="Scikit-learn">Scikit-learn</option>
+                <option value="Data Analysis">Data Analysis</option>
+                <option value="Big Data">Big Data</option>
+                <option value="Apache Spark">Apache Spark</option>
+              </optgroup>
+              
+              <!-- Tools & Other -->
+              <optgroup label="Tools & Technologies">
+                <option value="Git">Git</option>
+                <option value="Linux">Linux</option>
+                <option value="REST API">REST API</option>
+                <option value="GraphQL">GraphQL</option>
+                <option value="Microservices">Microservices</option>
+                <option value="Agile">Agile/Scrum</option>
+                <option value="TDD">Test-Driven Development</option>
+                <option value="CI/CD">CI/CD</option>
+              </optgroup>
+            </select>
+            <input type="hidden" name="required_skills" id="required_skills" value="[]">
+            <div class="form-text">
+              🔍 Search and select multiple skills. These will be used for AI matching.
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="d-flex gap-3 mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-circle me-2"></i>Create Job Posting
+            </button>
+            <a href="{% url 'job_list' %}" class="btn btn-outline-secondary btn-lg">
+              <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Help Card -->
+    <div class="card border-0 bg-light mt-4">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-2">
+          <i class="bi bi-lightbulb text-warning me-2"></i>Tips for better candidate matching:
+        </h6>
+        <ul class="mb-0 small">
+          <li>Be specific about required skills vs nice-to-have skills in the description</li>
+          <li>Include years of experience required</li>
+          <li>Mention specific technologies, frameworks, and tools</li>
+          <li>The AI will analyze the full description to match candidates intelligently</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  // Initialize Select2 with search
+  $('#skillsSelect').select2({
+    theme: 'bootstrap-5',
+    placeholder: 'Search and select skills...',
+    allowClear: true,
+    width: '100%',
+    tags: true,  // Allow adding custom skills
+    tokenSeparators: [','],
+  });
+
+  // Handle form submission
+  $('#jobForm').on('submit', function(e) {
+    // Get selected skills
+    var selectedSkills = $('#skillsSelect').val() || [];
+    
+    // Convert to JSON array format
+    $('#required_skills').val(JSON.stringify(selectedSkills));
+  });
+});
+</script>
+
+<style>
+  .select2-container--bootstrap-5 .select2-selection {
+    min-height: 45px;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+    background-color: #4F46E5;
+    border-color: #4F46E5;
+    color: white;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+  }
+
+  .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 0.5em;
+  }
+
+  textarea.form-control {
+    min-height: 150px;
+  }
+
+  .form-control-lg {
+    font-size: 1.1rem;
+  }
+</style>
+{% endblock %}
