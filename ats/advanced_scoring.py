@@ -9,10 +9,12 @@ from openai import OpenAI
 from django.conf import settings
 
 
-# Initialize OpenRouter client
+# Initialize OpenRouter client with timeout
 client = OpenAI(
     api_key=settings.OPENROUTER_API_KEY,
     base_url=settings.OPENROUTER_BASE_URL,
+    timeout=45.0,  # 45 second timeout for API calls
+    max_retries=0,  # No retries to fail fast
 )
 
 
@@ -475,6 +477,7 @@ Be fair but honest. Similar technologies should count (e.g., Flask experience he
             messages=[{'role': 'user', 'content': prompt}],
             max_tokens=800,
             temperature=0.3,
+            timeout=40,  # 40 second timeout for this specific call
             extra_headers={
                 "HTTP-Referer": settings.OPENROUTER_APP_NAME,
                 "X-Title": settings.OPENROUTER_APP_NAME,
@@ -505,17 +508,30 @@ Be fair but honest. Similar technologies should count (e.g., Flask experience he
         
     except Exception as e:
         # Return default structure if AI call fails
-        print(f"AI semantic match error: {e}")
+        error_type = type(e).__name__
+        error_msg = str(e)
+        
+        # Log the error for debugging
+        print(f"AI semantic match error ({error_type}): {error_msg}")
+        
+        # Provide user-friendly error message
+        if 'timeout' in error_msg.lower() or 'timed out' in error_msg.lower():
+            reasoning = 'AI analysis timed out (server busy). Keyword scoring still available.'
+        elif 'api' in error_msg.lower() or 'key' in error_msg.lower():
+            reasoning = 'AI API unavailable. Please check API key configuration.'
+        else:
+            reasoning = 'AI analysis unavailable. Using keyword scoring only.'
+        
         return {
             'technical_skills_score': 0,
             'experience_level_score': 0,
             'overall_score': 0,
             'grade': 'N/A',
-            'reasoning': 'AI analysis unavailable',
+            'reasoning': reasoning,
             'strengths': [],
-            'concerns': ['Unable to perform AI analysis'],
+            'concerns': ['AI analysis unavailable - manual review recommended'],
             'recommendation': 'Manual review required',
-            'error': str(e)
+            'error': f'{error_type}: {error_msg[:100]}'  # Truncate long errors
         }
 
 

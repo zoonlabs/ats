@@ -1,25 +1,30 @@
 services:
   - type: web
-    name: ats-web
+    name: django-ats
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn projectname.wsgi:application --bind 0.0.0.0:8000"
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: "chmod +x build.sh && ./build.sh"
+    startCommand: "gunicorn projectname.wsgi:application -c gunicorn_config.py"
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: projectname.settings
-      - key: DATABASE_URL
-        fromDatabase:
-          name: ats-db
-          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.11.0
       - key: SECRET_KEY
         generateValue: true
-    plan: free
-    autoDeploy: true
-  - type: pserv
-    name: ats-worker
-    env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python manage.py runworker"
+      - key: DEBUG
+        value: False
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_APP_NAME
+        value: ATS-Application
+      - key: DATABASE_URL
+        fromDatabase:
+          name: django-ats-db
+          property: connectionString
+
 databases:
-  - name: ats-db
+  - name: django-ats-db
+    databaseName: ats_db
+    user: ats_user
     plan: free

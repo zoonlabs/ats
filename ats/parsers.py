@@ -5,10 +5,12 @@ from openai import OpenAI
 from django.conf import settings
 
 
-# Initialize OpenRouter client
+# Initialize OpenRouter client with timeout
 client = OpenAI(
     api_key=settings.OPENROUTER_API_KEY,
     base_url=settings.OPENROUTER_BASE_URL,
+    timeout=30.0,  # 30 second timeout for parsing
+    max_retries=0,  # No retries to fail fast
 )
 
 
@@ -53,6 +55,7 @@ def parse_resume_with_openai(resume_text):
             messages=[{'role':'user','content':prompt}],
             max_tokens=500,
             temperature=0,
+            timeout=25,  # 25 second timeout for parsing call
             extra_headers={
                 "HTTP-Referer": settings.OPENROUTER_APP_NAME,
                 "X-Title": settings.OPENROUTER_APP_NAME,
@@ -63,6 +66,7 @@ def parse_resume_with_openai(resume_text):
         parsed = json.loads(text)
     except Exception as e:
         # Fallback: return default structure
-        print(f"Resume parsing error: {e}")
+        error_type = type(e).__name__
+        print(f"Resume parsing error ({error_type}): {str(e)[:200]}")
         parsed = {'email': None, 'phone': None, 'skills': [], 'experience': 0, 'education': ''}
     return parsed
