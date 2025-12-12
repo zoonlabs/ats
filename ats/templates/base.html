@@ -228,6 +228,7 @@
 	</style>
 </head>
 <body>
+{% if request.resolver_match.url_name != 'login' %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
 	<div class="container-fluid">
 		<a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
@@ -297,6 +298,7 @@
 		</div>
 	</div>
 </nav>
+{% endif %}
 <div class="container">
 		{% block content %}{% endblock %}
 </div>
